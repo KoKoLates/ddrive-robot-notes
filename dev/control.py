@@ -29,7 +29,7 @@ class PID(object):
     def update(
         self,
         current_pose: np.ndarray,
-        target_pose: np.ndarray,
+        target_pose: tuple,
         nose: np.ndarray,
         waypoint_index: int,
     ) -> tuple[float, float]:

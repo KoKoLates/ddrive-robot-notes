@@ -60,7 +60,7 @@ class Application(object):
                 if not (i % 2):
                     cv2.circle(
                         self.canvas,
-                        (points[i, 0], points[i, 1]),
+                        (points[i][0], points[i][1]),
                         2,
                         color,
                         thickness
@@ -69,14 +69,14 @@ class Application(object):
             
             cv2.line(
                 self.canvas,
-                (points[i, 0], points[i, 1]),
-                (points[i + 1, 0], points[i + 1, 1]),
+                (points[i][0], points[i][1]),
+                (points[i + 1][0], points[i + 1][1]),
                 color,
                 thickness
             )
             cv2.circle(
                 self.canvas,
-                (points[i, 0], points[i, 1]),
+                (points[i][0], points[i][1]),
                 3, 
                 (0, 0, 0),
                 1
@@ -85,7 +85,7 @@ class Application(object):
         if not dotted:
             cv2.circle(
                 self.canvas,
-                (points[-1, 0], points[-1, 1]),
+                (points[-1][0], points[-1][1]),
                 3,
                 (0, 0, 0),
                 1

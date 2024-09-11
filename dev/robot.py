@@ -61,7 +61,8 @@ class Robot(object):
     def _forward(self) -> None:
         mat: np.ndarray = np.array([
             [self.r/2, self.r/2],
-            [0, 0]
+            [0, 0],
+            [self.r/(self.b * 2), -self.r/(self.b * 2)]
         ])
         self.v = mat @ self.wheel_speeds
 
@@ -79,3 +80,7 @@ class Robot(object):
             [0, 0, 1]
         ])
         self.polygon: np.ndarray = (self.dimensions @ mat.T).astype('int')
+
+
+if __name__ == "__main__":
+    robot = Robot(0, 0)
