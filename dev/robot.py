@@ -13,9 +13,8 @@ class Robot(object):
         self.dimensions: np.ndarray = np.array(
             [
                 [-self.b, -self.b, 1],
-                [0, -self.b, 1],
-                [self.b, 0, 1],
-                [0, self.b, 1],
+                [self.b, -self.b, 1],
+                [self.b, self.b, 1],
                 [-self.b, self.b, 1],
             ]
         )
@@ -55,7 +54,13 @@ class Robot(object):
         self._inverse()
 
     def _forward(self) -> None:
-        mat: np.ndarray = np.array([[self.r / 2, self.r / 2], [0, 0]])
+        mat: np.ndarray = np.array(
+            [
+                [self.r / 2, self.r / 2],
+                [0, 0],
+                [self.r / (self.b * 2), -self.r / (self.b * 2)],
+            ]
+        )
         self.v = mat @ self.wheel_speeds
 
     def _inverse(self) -> None:
@@ -73,3 +78,7 @@ class Robot(object):
             ]
         )
         self.polygon: np.ndarray = (self.dimensions @ mat.T).astype("int")
+
+
+if __name__ == "__main__":
+    robot = Robot(0, 0)
