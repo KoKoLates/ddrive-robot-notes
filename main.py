@@ -1,7 +1,7 @@
 import cv2
 import argparse
 
-from dev import Application, Robot, PID
+from dev import Application, Robot, PID, MPC
 
 
 class Waypoints(object):
@@ -27,9 +27,10 @@ def main() -> None:
 
     robot: Robot = Robot(50, 50)
 
-    controller: PID = PID(0.5, 0.1, 0, 3, 0.1, 0)
-    trajectory: list = []
+    # controller: PID = PID(0.5, 0.1, 0, 3, 0.1, 0)
+    controller: MPC = MPC(robot)
 
+    trajectory: list = []
     index: int = 0
 
     while True:
@@ -50,7 +51,7 @@ def main() -> None:
             trajectory.append((int(p[0, 0]), int(p[1, 0])))
             target = wp_handler.wps[index]
 
-            l_v, a_v = controller.update(p, target, robot.points()[2], index)
+            l_v, a_v = controller.update(target)
             distance: float = PID.distance(p[0, 0], p[1, 0], target[0], target[1])
             if distance < 10:
                 index += 1
