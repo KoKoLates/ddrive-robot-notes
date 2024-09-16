@@ -28,7 +28,7 @@ def main() -> None:
     robot: Robot = Robot(50, 50)
 
     # controller: PID = PID(0.5, 0.1, 0, 3, 0.1, 0)
-    controller: MPC = MPC(robot)
+    controller: MPC = MPC()
 
     trajectory: list = []
     index: int = 0
@@ -51,9 +51,10 @@ def main() -> None:
             trajectory.append((int(p[0, 0]), int(p[1, 0])))
             target = wp_handler.wps[index]
 
-            l_v, a_v = controller.update(target)
+            # l_v, a_v = controller.update(p, target, robot.points()[2], index)
+            l_v, a_v = controller.update(robot, target)
             distance: float = PID.distance(p[0, 0], p[1, 0], target[0], target[1])
-            if distance < 10:
+            if distance < 5:
                 index += 1
         else:
             l_v, a_v = 0, 0
