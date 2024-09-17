@@ -1,39 +1,101 @@
 classdef robot
-    % A class definition for the differential drive robot
-    
     properties
-        pose = [0, 0, 0]; % [x, y, theta]
-        wheel_diameter = 0.25;
-        track_width = 0.5;
-
-        % velocity attributes
-        velocity = 20;
-        wheel_rate = [
-            abs(sin(0: 0.01: 2 * pi)).*velocity; 
-            abs(cos(0: 0.01: 2 * pi)).*velocity;
-        ];
-        dt = 0.01; % time between iterations in seconds
+        p               % position
+        v               % velocity
+        wheel_speeds    % left and right wheel speeds
+        wheel_radius    % wheel radius
+        b               % half distance between the wheels
+        dimensions      % robot dimension
+        polygon         % robot polygon for visualization
     end
-    
+
     methods
-        function [new_pose] = kinematics( ...
-                current_pose, linear_velocity, rotation_velocity, dt)
-            radius = abs(linear_velocity / rotation_velocity);
+        % constructor
+        function obj = robot(x,  y)
+            obj.p = [x; y; 0];
+            obj.v = [0; 0; 0];
+            obj.wheel_speeds = [0; 0];
+            obj.wheel_radius = 5;
+            obj.b = 25;
 
-            theta = current_pose(3);
-            % compute sin and cos at initial pose
-            s = sin(theta);
-            c = cos(theta);
+            % robot dimension
+            obj.dimensions = [
+                -obj.b, -obj.b, 1;
+                 obj.b, -obj.b, 1;
+                 obj.b,  obj.b, 1;
+                -obj.b,  obj.b, 1
+            ];
 
-            % compute sin and cos at final pose
-            s_th = sin(theta + rotation_velocity * dt);
-            c_th = cos(theta + rotation_velocity * dt);
+            % update polygon for visualization
+            obj = obj.update_polygon();
+        end
 
-
-            current_pose(1) = current_pose(1) + (linear_velocity * c_th) * dt;
-            % ...
+        function obj = update(obj, dt)
+            obj.wheel_speeds(obj.wheel_speeds > 3) = 3;
+            obj.wheel_speeds(obj.wheel_speeds < -3) = -3;
             
-            new_pose = current_pose;
+            % calculate forward velocity from wheel speeds
+            obj = obj.forward();
+            
+            % update position using velocity
+            a = eye(3);
+            c = [
+                sin(obj.p(3) + pi/2) * dt, 0;
+                cos(obj.p(3) + pi/2) * dt, 0;
+                0, dt
+            ];
+             
+            vel = [obj.v(1); obj.v(3)];
+            obj.p = a * obj.p + c * vel;
+            
+            % update wheel speeds based on new velocity
+            obj = obj.inverse();
+        end
+
+        function polygon = points(obj)
+            obj = obj.update_polygon();
+            polygon = obj.polygon;
+        end
+
+        function [p, v] = state(obj)
+            p = obj.p;
+            v = obj.v;
+        end
+
+        function obj = set_robot_speed(obj, linear, angular)
+            obj.v = [linear; 0; angular];
+            obj = obj.inverse();
+        end
+
+        function obj = set_wheel_speed(obj, left, right)
+            obj.wheel_speeds = [left; right];
+            obj = obj.forward();
+        end
+
+        function obj = forward(obj)
+            mat = [
+                obj.wheel_radius / 2, obj.wheel_radius / 2;
+                0, 0;
+                obj.wheel_radius / (2 * obj.b), -obj.wheel_radius / (2 * obj.b)
+            ];
+            obj.v = mat * obj.wheel_speeds;
+        end
+
+        function obj = inverse(obj)
+            mat = [
+                1 / obj.wheel_radius, 0, obj.b / obj.wheel_radius;
+                1 / obj.wheel_radius, 0, -obj.b / obj.wheel_radius
+            ];
+            obj.wheel_speeds = mat * obj.v;
+        end
+
+        function obj = update_polygon(obj)
+            mat = [
+                 cos(obj.p(3)), sin(obj.p(3)), obj.p(1);
+                -sin(obj.p(3)), cos(obj.p(3)), obj.p(2);
+                0, 0, 1;
+            ];
+            obj.polygon = obj.dimensions * mat;
         end
     end
 end
