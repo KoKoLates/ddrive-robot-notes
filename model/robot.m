@@ -11,7 +11,7 @@ classdef robot
 
     methods
         % constructor
-        function obj = robot(x,  y)
+        function obj = robot(x, y)
             obj.p = [x; y; 0];
             obj.v = [0; 0; 0];
             obj.wheel_speeds = [0; 0];
@@ -27,7 +27,7 @@ classdef robot
             ];
 
             % update polygon for visualization
-            obj = obj.update_polygon();
+            obj.update_polygon();
         end
 
         function obj = update(obj, dt)
@@ -53,7 +53,7 @@ classdef robot
         end
 
         function polygon = points(obj)
-            obj = obj.update_polygon();
+            obj.update_polygon();
             polygon = obj.polygon;
         end
 
@@ -76,7 +76,7 @@ classdef robot
             mat = [
                 obj.wheel_radius / 2, obj.wheel_radius / 2;
                 0, 0;
-                obj.wheel_radius / (2 * obj.b), -obj.wheel_radius / (2 * obj.b)
+                obj.wheel_radius / (obj.b * 2), -obj.wheel_radius / (obj.b * 2)
             ];
             obj.v = mat * obj.wheel_speeds;
         end
@@ -95,8 +95,7 @@ classdef robot
                 -sin(obj.p(3)), cos(obj.p(3)), obj.p(2);
                 0, 0, 1;
             ];
-            obj.polygon = obj.dimensions * mat;
+            obj.polygon = round((obj.dimensions * mat')');
         end
     end
 end
-
