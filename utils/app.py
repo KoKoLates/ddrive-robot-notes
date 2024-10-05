@@ -63,7 +63,7 @@ class Application(object):
 
         for p1, p2 in zip(path[:-1], path[1:]):
             cv2.line(self.canvas, p1, p2, color, 1)
-            self._plot_circle(p1, color)
+            # self._plot_circle(p1, color)
         self._plot_circle(path[-1], color)
 
     def lebel(

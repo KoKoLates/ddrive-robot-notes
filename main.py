@@ -1,5 +1,5 @@
 
-from robot import Robot, PID
+from robot import Robot, PID, MPC
 from utils import WaypointHandler, Application
 
 from utils import compute_distance
@@ -8,13 +8,14 @@ from utils import compute_distance
 def main() -> None:
     handler = WaypointHandler()
     app: Application = Application(
-        (500, 500),
+        (800, 800),
         "Tracking Simulation",
         handler.add_waypoint
     )
 
     robot = Robot(50, 50)
-    ctrl = PID(0.5, 0, 0.1, 0.3, 0, 0.1)
+    # ctrl = PID(0.5, 0, 0.1, 0.3, 0, 0.1)
+    ctrl = MPC()
 
     index: int = 0
     trajectory: list[tuple[int, int]] = []
@@ -32,11 +33,12 @@ def main() -> None:
         k: int = app.show()
 
         p, _ = robot.state
-        if  len(handler.path) and index != len(handler.path):
+        if  len(handler.path) and index < len(handler.path):
             trajectory.append((int(p[0, 0]), int(p[1, 0])))
             target = handler.path[index]
 
-            v, w = ctrl.update(p, target)
+            # v, w = ctrl.update(p, target)
+            v, w = ctrl.update(target, robot)
             d: float = compute_distance(tuple(p[:2].flatten()), target)
 
             if d < 10:
