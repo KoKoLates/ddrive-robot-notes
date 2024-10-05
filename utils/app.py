@@ -37,36 +37,35 @@ class Application(object):
                 self.canvas,
                 (points[i, 0], points[i, 1]),
                 (points[i + 1, 0], points[i + 1, 1]),
-                color, thickness
+                color,
+                thickness,
             )
 
         cv2.line(
             self.canvas,
             (points[0, 0], points[0, 1]),
             (points[-1, 0], points[-1, 1]),
-            color, thickness
+            color,
+            thickness,
         )
 
     def plot_path(
         self,
         path: list[tuple[int, int]],
         color: color_tuple = (128, 128, 128),
-        dot: bool = False
+        dot: bool = False,
     ) -> None:
-        def plot_circle(point: tuple[int, int], radius: int = 3) -> None:
-            cv2.circle(self.canvas, point, radius, color, -1)
-
         if dot:
             for i, point in enumerate(path[:-1]):
-                if not (i % 4):
-                    plot_circle(point, 2)
+                if not (i % 3):
+                    self._plot_circle(point, color, 2)
             return
 
         for p1, p2 in zip(path[:-1], path[1:]):
             cv2.line(self.canvas, p1, p2, color, 1)
-            plot_circle(p1)
-        plot_circle(path[-1])
-            
+            self._plot_circle(p1, color)
+        self._plot_circle(path[-1], color)
+
     def lebel(
         self,
         text: str,
@@ -76,10 +75,21 @@ class Application(object):
         org: tuple[int, int] = (100, 50),
     ) -> None:
         cv2.putText(
-            self.canvas, text, org, cv2.FONT_HERSHEY_SCRIPT_SIMPLEX, 
-            font_size, color, thickness, cv2.LINE_AA
+            self.canvas,
+            text,
+            org,
+            cv2.FONT_HERSHEY_SCRIPT_SIMPLEX,
+            font_size,
+            color,
+            thickness,
+            cv2.LINE_AA,
         )
 
     def show(self) -> int:
         cv2.imshow(self.name, self.canvas)
         return cv2.waitKey(30)
+
+    def _plot_circle(
+        self, point: tuple[int, int], color: color_tuple, radius: int = 3
+    ) -> None:
+        cv2.circle(self.canvas, point, radius, color, -1)
