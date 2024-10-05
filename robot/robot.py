@@ -38,7 +38,10 @@ class Robot(object):
     
     @property
     def state(self) -> tuple[np.ndarray, np.ndarray]:
-        return self.p, self.v
+        return self.p.copy(), self.v.copy()
+    
+    def set_state(self, p: np.ndarray, v: np.ndarray) -> None:
+        self.p, self.v = p, v
     
     def set_robot_speeds(self, v: float, w: float) -> None:
         self.v = np.reshape([v, 0, w], (3, 1))
