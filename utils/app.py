@@ -55,6 +55,9 @@ class Application(object):
         color: color_tuple = (128, 128, 128),
         dot: bool = False,
     ) -> None:
+        if not path:
+            return
+
         if dot:
             for i, point in enumerate(path[:-1]):
                 if not (i % 3):
