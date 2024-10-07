@@ -20,14 +20,13 @@ where:
 After the designa of cost function, we can apply the optimization solver. Typically, the optimization problem will be formed into linear programming or quadratic programming format, and then we can use corresponding solver to deal with the problem, and obtain the corresponding optimal parameters $v, w$
 
 $$
-\argmin_{v,w}\mathcal J
+\min_{v,w}\mathcal J
 $$
 
-## Control Constraints
 The optimization is subject to input constraints, which are bounds on the control inputs
 
 $$
-0\leq v_k\leq 5, -\pi\leq w_k\leq \pi
+v_{\  min}\leq v_k\leq v_{\max}, w_{\min}\leq w_k\leq w_{\max}
 $$
 
 where $v_k$ is the linear velocity and $w_k$ is the angular velocity at time step $k$.
