@@ -1,60 +1,15 @@
-import random
+import os
+import argparse
 import numpy as np
 import matplotlib.pyplot as plt
 
 from typing import Callable
-from scipy.interpolate import CubicSpline
 
 from utils import Application
 from robot import Robot, PID, MPC
 
+from map import load_map
 from utils import compute_distance
-
-
-def generate_random_curved_path(
-    num_points: int, width: int, height: int
-) -> list[tuple[int, int]]:
-    # Generate random control points within the specified width and height
-    control_points_x = [random.randint(50, width - 50) for _ in range(num_points)]
-    control_points_y = [random.randint(50, height - 50) for _ in range(num_points)]
-
-    # Parameterize the curve
-    t = np.linspace(0, 1, num_points)
-
-    # Use cubic spline to interpolate a smooth curve through the random control points
-    spline_x = CubicSpline(t, control_points_x, bc_type="natural")
-    spline_y = CubicSpline(t, control_points_y, bc_type="natural")
-
-    # Sample more points from the splines for a smoother curve
-    t_fine = np.linspace(0, 1, num_points * 10)
-    waypoints = [(int(spline_x(ti)), int(spline_y(ti))) for ti in t_fine]
-
-    return waypoints
-
-
-def square_path_generator(
-    x: int, y: int, border: int, step: int = 20
-) -> list[tuple[int, int]]:
-    waypoints: list[tuple[int, int]] = []
-
-    waypoints += [(i, y) for i in range(x, x + border, step)]
-    waypoints += [(x + border, j) for j in range(y, y + border, step)]
-    waypoints += [(i, y + border) for i in range(x + border, x, -step)]
-    waypoints += [(x, j) for j in range(y + border, y, -step)]
-
-    return waypoints
-
-
-def circle_path_generator(
-    x: int, y: int, radius: int, num_wps: int = 100
-) -> list[tuple[int, int]]:
-    waypoints: list = []
-    for i in range(num_wps):
-        angle: float = np.pi * 2 * (i / num_wps)
-        _x: int = x + int(radius * np.sin(angle))
-        _y: int = y - int(radius * np.cos(angle))
-        waypoints.append((_x, _y))
-    return waypoints
 
 
 class Pipeline(object):
@@ -81,7 +36,7 @@ class Pipeline(object):
             v, w = self.ctrl_func(p, target)
             d: float = compute_distance(tuple(p[:2].flatten()), target)
             self.error.append(d)
-            if d < 10:
+            if d < 30:
                 self.index += 1
         else:
             v, w = 0, 0
@@ -95,24 +50,16 @@ class Pipeline(object):
         y = [p[1] for p in self.history]
         return x, y, self.error, self.times
 
-def generate_waypoints_time(waypoints: list[tuple[int, int]], speed: float = 50) -> list[float]:
-    times = [0.0]  # Start time at 0
-    for i in range(1, len(waypoints)):
-        d = compute_distance(waypoints[i - 1], waypoints[i])
-        dt = d / speed
-        times.append(times[-1] + dt)
-    return times
 
 def main() -> None:
-    waypoints: list[tuple[int, int]] = square_path_generator(100, 100, 100)
-    # waypoints = circle_path_generator(250, 250, 50)
+    waypoints = load_map(args.f)
     app: Application = Application((500, 500), "Comparison")
 
     # PID
-    pid_robot = Robot(100, 100)
-    mpc_robot = Robot(100, 100)
+    pid_robot = Robot(50, 50)
+    mpc_robot = Robot(50, 50)
 
-    pid_ctrl = PID(0.5, 0.1, 0, 3, 0.1, 0)
+    pid_ctrl = PID(0.5, 0, 0.1, 0.5, 0, 0.1)
     mpc_ctrl = MPC(5)
 
     pid = Pipeline(pid_robot, waypoints, pid_ctrl.update)
@@ -122,47 +69,51 @@ def main() -> None:
 
     while True:
         app.clean()
+        app.plot(pid_robot.points, (0, 165, 255))
+        app.plot(mpc_robot.points, (255, 255, 0))
+
         app.plot_path(waypoints)
         app.plot_path(pid.history, (0, 165, 255), True)
         app.plot_path(mpc.history, (255, 255, 0), True)
 
-        app.plot(pid_robot.points, (0, 165, 255))
-        app.plot(mpc_robot.points, (255, 255, 0))
-
-        if app.show() == ord("q"):
+        if app.show() & 0xFF == ord("q"):
             break
 
         pid.update(0.5)
         mpc.update(0.5)
 
     # plot history
-    fig, axs = plt.subplots(3, figsize=(6, 6))
+    # _, axs = plt.subplots(3, figsize=(6, 6))
 
-    pid_x, pid_y, pid_err, pid_time = pid.extract_history()
-    mpc_x, mpc_y, mpc_err, mpc_time = mpc.extract_history()
-    wp_x = [p[0] for p in waypoints]
-    wp_y = [p[1] for p in waypoints]
-    wp_time = generate_waypoints_time(waypoints)
+    # pid_x, pid_y, pid_err, pid_time = pid.extract_history()
+    # mpc_x, mpc_y, mpc_err, mpc_time = mpc.extract_history()
+
+    # pid_color = np.array((255, 165, 0)) / 255
+    # mpc_color = np.array((0, 255, 255)) / 255
 
 
-    axs[0].plot(pid_time, pid_x, label="PID")
-    axs[0].plot(mpc_time, mpc_x, label="MPC")
-    # axs[0].plot(pid_time, wp_x, label="Ground Truth")
-    axs[0].legend()
+    # axs[0].plot(pid_time, pid_x, label="PID", color=pid_color)
+    # axs[0].plot(mpc_time, mpc_x, label="MPC", color=mpc_color)
+    # axs[0].legend()
 
-    axs[1].plot(pid_time, pid_y, label="PID")
-    axs[1].plot(mpc_time, mpc_y, label="MPC")
-    # axs[1].plot(pid_time, wp_y, label="Ground Truth")
-    axs[1].legend()
+    # axs[1].plot(pid_time, pid_y, label="PID", color=pid_color)
+    # axs[1].plot(mpc_time, mpc_y, label="MPC", color=mpc_color)
+    # axs[1].legend()
 
-    axs[2].plot(pid_time, pid_err, label="PID")
-    axs[2].plot(mpc_time, mpc_err, label="MPC")
-    axs[2].legend()
+    # axs[2].plot(pid_time, pid_err, label="PID", color=pid_color)
+    # axs[2].plot(mpc_time, mpc_err, label="MPC", color=mpc_color)
+    # axs[2].legend()
 
-    plt.tight_layout()
-    plt.show()
-    
+    # plt.tight_layout()
+    # plt.show()
 
 
 if __name__ == "__main__":
+    parser = argparse.ArgumentParser()
+    parser.add_argument("-f", type=str, required=True)
+    args = parser.parse_args()
+
+    if not os.path.exists(args.f):
+        raise FileNotFoundError
+
     main()
