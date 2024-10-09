@@ -1,13 +1,19 @@
 # Differential Drive Robot
-A simulation of two wheel differential drive robot. The robot could track a given path with PID controller or model predictive controller. And some tracks have been designed for comparing two different controller.
+A simulation of two wheeled differential drive robot. The robot could simply follow a given waypoints based on PID controller or MPC controller (model predictive controller).
 
-* simple description
-* how to use
+* usage
+* example of comparison
 
-User could create a virtual environment `.venv` for the project. And make sure all dependencies are installed properly. Apply the command below to setup properly.
+User is recommneded to create a virtual environment `.venv` for this project, and make sure all dependencies are installed properly. 
+
+```bash
+pip install -r requirements.txt
+```
 
 ## Usage
-In the basic mode, the robot using PID controller in default. User can use their mouse to add or remove waypoint on the window, and observe the effects of different parameters. The default is user mouse event, user can use left button to create waypoint and right button to remove waypoint from the list. 
+
+The differential wheeled robot is equipped with PID controller in default. You could add waypoint with left mouse and remove exist waypoint with right mouse on the window. The application also provide square and circle path generator, user can selected the generator based on different type option.
+
 ``` shell
 python main.py --type [square|circle]
 ```
@@ -18,7 +24,7 @@ python main.py --type [square|circle]
   <img src="./assets/square.gif" alt="square" width="236" />
 </div>
 
-Tuning the controller parameter with the simulation application, here we test on different parameter of PID controller and observe the difference of behavior between different condition.  
+Besides, you can also tuning the parameters of controller right on the main file directly, and observe the difference of behavior under different parameters. It could also help you tuning a proper parameter for the controller.
 
 <div align="center">
   <img src="./assets/param1.gif" alt="param1" width="235" />
@@ -54,32 +60,38 @@ where $v_k$ is the linear velocity and $w_k$ is the angular velocity at time ste
 
 
 ## Examples
-There are several maps could be used. And in the example, you can compare two different controller with PID in **orange** robot and model predictive controller in **blue** robot.
+
+In example, it has several of maps that could be used in comparison of different controller. Here's some results of comparison, with **orange** robot in PID controller and **blue** robot is MPC controller.
+
 ```bash
 python example.py --map map/maps/map00.txt
 ```
-
 
 <div align="center">
   <img src="./assets/map00.gif" alt="map00" width="235" />
   <img src="./assets/map02.gif" alt="map02" width="232" />
   <img src="./assets/map06.gif" alt="map06" width="233" />
 </div>
-<div style="text-align: center;">
+<div align="center">
   <img src="./assets/map10.gif" alt="map10" width="235" />
   <img src="./assets/map03.gif" alt="map03" width="235" />
   <img src="./assets/map09.gif" alt="map09" width="235" />
 </div>
 
-The are more map, please see [here](./map/) for more information.
+The pipeline object of each controller in the example has the method to return the trajectory of x and y coordinates, a history of error to the distance and the time series.
 
 ```python
 x, y, error, interval = pipeline.extract_history()
 ```
 
+User can modify the contents to save the history or plot the trajectory and error like figure below to analysis different controller or different parameter if needed.
+
 <div align="center">
   <img src="./assets/map02.png" alt="map02-history" width="650">
 </div>
+
+Some different maps are provided in this project, please see [here](./map/) for more kind of choice and information. You can also generate your own one for development or testing.
+
 
 ## References
 * [differential drive robot](https://en.wikipedia.org/wiki/Differential_wheeled_robot)
