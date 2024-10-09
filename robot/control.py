@@ -1,5 +1,6 @@
 import numpy as np
 
+from robot import Robot
 from scipy.optimize import minimize
 from utils import compute_angle, compute_distance
 
@@ -54,14 +55,16 @@ class PID(object):
         ctrl_w = np.clip(ctrl_w, -np.pi, np.pi)
         return ctrl_v, ctrl_w
 
-
-from robot import Robot
+    def info(self) -> tuple[str, str]:
+        v: str = f"v: Kp {self.Kp_v:.1f} Ki {self.Ki_v:.1f} Kd {self.Kd_v:.1f}"
+        w: str = f"w: Kp {self.Kp_w:.1f} Ki {self.Ki_w:.1f} Kd {self.Kd_w:.1f}"
+        return v, w
 
 
 class MPC(object):
     def __init__(self, window: int = 5) -> None:
         self.window: int = window
-        self.Q: np.ndarray = np.diag([1.0, 1.0])  # state cost matrix
+        self.Q: np.ndarray = np.diag([1.0, 1.0])    # state cost matrix
         self.R: np.ndarray = np.diag([0.01, 0.01])  # input cost matrix
         self.Rd: np.ndarray = np.diag([0.01, 1.0])  # input difference cost matrix
 
