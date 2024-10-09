@@ -1,37 +1,41 @@
+import argparse
+
+from typing import Callable
+
 from robot import Robot, PID
 from utils import WaypointHandler, Application
 
 from utils import compute_distance
+from map import square_path_generator, circle_path_generator
 
 
-def main() -> None:
-    handler = WaypointHandler()
-    app: Application = Application((500, 500), "Tracking", handler.add_waypoint)
-
-    robot = Robot(50, 50)
-    ctrl = PID(0.5, 0, 0.1, 0.3, 0, 0.1)
+def tracking(
+    app: Application,
+    robot: Robot,
+    color: tuple[int, int, int],
+    handler: Callable[[], list[tuple[int, int]]],
+) -> None:
+    waypoints: list = handler()
+    ctrl = PID(0.5, 0, 0.1, 0.9, 0, 0.1)
 
     index: int = 0
     history: list[tuple[int, int]] = []
 
     while True:
         app.clean()
-        app.plot(robot.points, (0, 165, 255))
-        app.plot_path(history, (0, 165, 255), dot=True)
-        app.plot_path(handler.path)
-
-        if app.show() & 0xFF == ord("q"):
-            break
+        app.plot(robot.points, color)
+        app.plot_path(history, color, True)
+        app.plot_path(waypoints)
 
         p, _ = robot.state
-        if len(handler.path) and index < len(handler.path):
+        if len(waypoints) and index < len(waypoints):
             history.append((int(p[0, 0]), int(p[1, 0])))
-            target = handler.path[index]
+            target = waypoints[index]
 
             v, w = ctrl.update(p, target)
             d: float = compute_distance(tuple(p[:2].flatten()), target)
 
-            if d < 10:
+            if d < 15:
                 index += 1
         else:
             v, w = 0, 0
@@ -39,6 +43,53 @@ def main() -> None:
         robot.set_robot_speeds(v, w)
         robot.update(0.5)
 
+        if app.show() & 0xFF == ord("q"):
+            break
+
+
+def cursor() -> None:
+    handler = WaypointHandler()
+    tracking(
+        Application((500, 500), "Waypoint Handler", handler.add_waypoint),
+        Robot(250, 250),
+        (20, 255, 57),
+        lambda: handler.path,
+    )
+
+
+def square() -> None:
+    tracking(
+        Application((500, 500), "Square Tracking"),
+        Robot(125, 125),
+        (20, 255, 57),
+        lambda: square_path_generator(125, 125, 250, 30),
+    )
+
+
+def circle() -> None:
+    tracking(
+        Application((500, 500), "Circle Tracking"),
+        Robot(250, 130),
+        (20, 255, 57),
+        lambda: circle_path_generator(250, 250, 120),
+    )
+
 
 if __name__ == "__main__":
-    main()
+    parser = argparse.ArgumentParser(description="Run path tracking simulation.")
+    parser.add_argument(
+        "-t",
+        "--type",
+        type=str,
+        choices=["cursor", "square", "circle"],
+        default="cursor",
+        help="Type of simulation to run (default: cursor",
+    )
+    args = parser.parse_args()
+
+    function_table: dict[str, Callable] = {
+        "square": square,
+        "circle": circle,
+        "cursor": cursor,
+    }
+    function_table[args.type]()
