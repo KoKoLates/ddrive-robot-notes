@@ -81,9 +81,9 @@ if __name__ == "__main__":
         "-t",
         "--type",
         type=str,
-        choices=["cursor", "square", "circle"],
         default="cursor",
-        help="Type of simulation to run (default: cursor",
+        choices=["cursor", "square", "circle"],
+        help="type of simulation to be executed (default: cursor)",
     )
     args = parser.parse_args()
 
