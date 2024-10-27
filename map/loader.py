@@ -36,7 +36,11 @@ def load_map(filename: str) -> list[tuple[int, int]]:
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument("-f", type=str, required=True, help="filename of map")
+    parser.add_argument(
+        "-m", "--map",
+        type=str, required=True,
+        help="the map to be loaded"
+    )
     args = parser.parse_args()
 
-    plot_path(args.f, (500, 500))
+    plot_path(args.map, (500, 500))
