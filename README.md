@@ -1,18 +1,17 @@
-# Differential Drive Robot
-A simulation of two wheeled differential drive robot. The robot could simply follow a given waypoints based on PID controller or MPC controller (model predictive controller).
+# Differential Drive Robots
+This project simulates a two-wheeled differential drive robot that follows given waypoints using either a PID controller or a Model Predictive Controller (MPC). The simulation allows for real-time parameter adjustments, multiple path types, and controller comparisons.
 
-* usage
-* example of comparison
+## Setup
+It is recommended to use a virtual environment `venv` for this project. After set up the environment, make sure cooresponding dependencies are installed properly.
 
-User is recommneded to create a virtual environment `.venv` for this project, and make sure all dependencies are installed properly. 
-
-```bash
+```text
 pip install -r requirements.txt
 ```
 
-## Usage
 
-The differential wheeled robot is equipped with PID controller in default. You could add waypoint with left mouse and remove exist waypoint with right mouse on the window. The application also provide square and circle path generator, user can selected the generator based on different type option.
+## Simulation
+
+The robot simulation defaults to using a PID controller. You can add waypoints interactively with the left mouse button and remove them with the right mouse button. To specify the path type (`circle` or `square`), use the following command to start the simulation:
 
 ``` shell
 python main.py --type [square|circle]
@@ -24,7 +23,7 @@ python main.py --type [square|circle]
   <img src="./assets/square.gif" alt="square" width="236" />
 </div>
 
-Besides, you can also tuning the parameters of controller right on the main file directly, and observe the difference of behavior under different parameters. It could also help you tuning a proper parameter for the controller.
+Parameters for the controllers can be modified directly in the main file. This allows you to observe how different parameters affect robot behavior in real time, which helps in fine-tuning the control settings. Here, two parameters of PID controller have been applied, and the difference of behavior could be direcly observe through the simulation
 
 <div align="center">
   <img src="./assets/param1.gif" alt="param1" width="235" />
@@ -61,7 +60,7 @@ where $v_k$ is the linear velocity and $w_k$ is the angular velocity at time ste
 
 ## Examples
 
-In example, it has several of maps that could be used in comparison of different controller. Here's some results of comparison, with **orange** robot in PID controller and **blue** robot is MPC controller.
+This project includes multiple maps for comparing controller performance, with **`orange`** representing the PID-controlled robot and **`blue`** representing the MPC-controlled robot. To run an example with a specific map, use:
 
 ```bash
 python example.py --map map/maps/map00.txt
@@ -78,22 +77,21 @@ python example.py --map map/maps/map00.txt
   <img src="./assets/map09.gif" alt="map09" width="235" />
 </div>
 
-The pipeline object of each controller in the example has the method to return the trajectory of x and y coordinates, a history of error to the distance and the time series.
+Each controller pipeline provides methods `pipeline.extract_history()` to extract historical data for analysis:
 
 ```python
 x, y, error, interval = pipeline.extract_history()
 ```
 
-User can modify the contents to save the history or plot the trajectory and error like figure below to analysis different controller or different parameter if needed.
+This history can be used to plot and analyze trajectory performance, control error, and time-series behavior, helping to optimize parameters or compare controllers.
 
 <div align="center">
   <img src="./assets/map02.png" alt="map02-history" width="650">
 </div>
 
-Some different maps are provided in this project, please see [here](./map/) for more kind of choice and information. You can also generate your own one for development or testing.
-
+Additional map files are available in the [`map`](./map/) folder. These maps can be used for developing or testing alternative control strategies or configurations. You can also create custom maps to suit your requirements.
 
 ## References
-* [differential drive robot](https://en.wikipedia.org/wiki/Differential_wheeled_robot)
-* [model predictive control](https://en.wikipedia.org/wiki/Model_predictive_control)
+* [differential wheeled robot](https://en.wikipedia.org/wiki/Differential_wheeled_robot)
+* [model predictive controller](https://en.wikipedia.org/wiki/Model_predictive_control)
 
