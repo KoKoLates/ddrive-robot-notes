@@ -1,14 +1,24 @@
 import cv2
-
+from typing import Optional
 
 class WaypointHandler(object):
     def __init__(self) -> None:
-        self.path: list[tuple[int, int]] = []
+        self._path: list[tuple[int, int]] = []
         self.index: int = 0
 
-    def add_waypoint(self, event: int, x: int, y: int, flags: int, param: int) -> None:
+    def add_waypoint(
+        self, 
+        event: int, 
+        x: int, y: int, 
+        flags: Optional[int] = None, 
+        param: Optional[int] = None
+    ) -> None:
+        """ Adds or removes waypoints based on mouse events """
         if event == cv2.EVENT_LBUTTONDOWN:
-            self.path.append((x, y))
+            self._path.append((x, y))
+        if event == cv2.EVENT_RBUTTONDOWN and self._path:
+            self._path.pop()
 
-        if event == cv2.EVENT_RBUTTONDOWN:
-            self.path.pop()
+    @property
+    def path(self) -> list[tuple[int, int]]:
+        return self._path
