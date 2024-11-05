@@ -1,7 +1,7 @@
-# Differential Drive Robots
-This project simulates a two-wheeled differential drive robot that follows given waypoints using either a PID controller or a Model Predictive Controller (MPC). The simulation allows for real-time parameter adjustments, multiple path types, and controller comparisons.
+# Differential Wheeled Robots
+This interactive simulation allows users to explore and compare the performance of a two-wheeled differential drive robot as it follows waypoints using a **PID controller** or a **Model Predictive Controller (MPC)**. Experience real-time parameter adjustments, different path types, and detailed controller performance analysis.
 
-## Setup
+
 It is recommended to use a virtual environment `venv` for this project. After set up the environment, make sure cooresponding dependencies are installed properly.
 
 ```text
@@ -9,9 +9,9 @@ pip install -r requirements.txt
 ```
 
 
-## Simulation
+## Quick Start
 
-The robot simulation defaults to using a PID controller. You can add waypoints interactively with the left mouse button and remove them with the right mouse button. To specify the path type (`circle` or `square`), use the following command to start the simulation:
+The robot simulation defaults to using a PID controller. To add waypoints interactively, use the left mouse button, and to remove them, use the right mouse button. Start the simulation with your desired path type (`circle` or `square`) using the following command:
 
 ``` shell
 python main.py --type [square|circle]
@@ -60,7 +60,7 @@ where $v_k$ is the linear velocity and $w_k$ is the angular velocity at time ste
 
 ## Examples
 
-This project includes multiple maps for comparing controller performance, with **`orange`** representing the PID-controlled robot and **`blue`** representing the MPC-controlled robot. To run an example with a specific map, use:
+This project includes multiple maps designed for comparing controller performance. The maps offer various environments that highlight the strengths and weaknesses of the different control strategies. In the visual outputs, **`orange`** represents the PID-controlled robot, while **`blue`** indicates the MPC-controlled robot. To run an example using a specific map, execute the following command in your terminal, replacing `map00.txt` with the desired map file name:
 
 ```bash
 python example.py --map map/maps/map00.txt
@@ -77,13 +77,13 @@ python example.py --map map/maps/map00.txt
   <img src="./assets/map09.gif" alt="map09" width="235" />
 </div>
 
-Each controller pipeline provides methods `pipeline.extract_history()` to extract historical data for analysis:
+After running the simulation, you can utilize the `pipeline.extract_history()` method to analyze the trajectory performance and control errors. This function allows you to capture the robot's historical data, including position, velocity, and the errors encountered along the way.
 
 ```python
-x, y, error, interval = pipeline.extract_history()
+x, y, error, period = pipeline.extract_history()
 ```
 
-This history can be used to plot and analyze trajectory performance, control error, and time-series behavior, helping to optimize parameters or compare controllers.
+The historical data extracted from the simulation can be invaluable for analyzing various aspects of the robot's performance like trajectory performances, control error analysis and comparative performance.
 
 <div align="center">
   <img src="./assets/map02.png" alt="map02-history" width="650">
@@ -92,6 +92,5 @@ This history can be used to plot and analyze trajectory performance, control err
 Additional map files are available in the [`map`](./map/) folder. These maps can be used for developing or testing alternative control strategies or configurations. You can also create custom maps to suit your requirements.
 
 ## References
-* [differential wheeled robot](https://en.wikipedia.org/wiki/Differential_wheeled_robot)
-* [model predictive controller](https://en.wikipedia.org/wiki/Model_predictive_control)
-
+* [Differential Wheeled Robot](https://en.wikipedia.org/wiki/Differential_wheeled_robot)
+* [Model Predictive Control](https://en.wikipedia.org/wiki/Model_predictive_control)
